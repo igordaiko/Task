@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+	<meta charset="utf-8" />
+    <style >
+        .textbox{
+            width:100%;
+            border:1px solid #000;
+            height:30px;
+            float:left;
+        }
+        #culc {
+            width:300px;
+            height:auto;
+        }
+        .numbers{
+            width:70%;
+            height:80%;
+            float:left;
+        }
+        .number{
+            float:left;
+            width:33%;
+        }
+        .operations{
+            float:left;
+            width:30%;
+        }
+        .oper{
+            width:45%;
+        }
+    </style>
+</head>
+<body>
+    <div id="culc">
+        <div class="textbox"></div>
+        <div class="numbers">
+            <button class="number">1</button>
+            <button class="number">2</button>
+            <button class="number">3</button>
+            <button class="number">4</button>
+            <button class="number">5</button>
+            <button class="number">6</button>
+            <button class="number">7</button>
+            <button class="number">8</button>
+            <button class="number">9</button>
+            <button class="number">0</button>
+        </div>
+        <div class="operations">
+            <button class="oper">+</button>
+            <button class="oper">-</button>
+            <button class="oper">*</button>
+            <button class="oper">/</button>
+            <button class="oper">=</button>
+            <button id="clr">CLR</button>
+        </div>
+    </div>
+    <script src="Scripts/jquery-1.10.2.min.js"></script>
+
+    <script src="Scripts/jquery.validate.unobtrusive.min.js"></script>
+    <script src="Scripts/jquery.json.min.js"></script>
+    <script>
+        var value = {
+            frs_num: 0,
+            scd_num: 0,
+            operation: ""
+        };
+
+        var url = "/api/values";
+        $("#clr").click(function () {
+            value.frs_num = 0;
+            value.scd_num = 0;
+            value.operation = "";
+            $(".textbox").text("");
+
+        })
+        $(".number").click(function () {
+            $(".textbox").text($(".textbox").text() + $(this).text());
+        })
+        $(".oper").click(function () {
+            if(value.operation == "" && $(this).text() != "=")
+            {
+                value.frs_num = $(".textbox").text();
+                value.operation = $(this).text();
+                $(".textbox").text("");
+            }
+            else if(value.operation != "" && $(this).text() == "=")
+            {
+                value.scd_num = $(".textbox").text();
+                if (value.operation == "/" && value.scd_num == 1) {
+                    alert("невозможно поделить на 0")
+                    $(".textbox").text("");
+                }
+                else {
+                    $.ajax({
+                        type: "Post",
+                        url: url,
+                        data: $.toJSON(value),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            $(".textbox").text(data);
+                        },
+                        error: function (data) {
+                            $(".textbox").text(data.responseText);
+                        }
+                    })
+                }
+            }
+        })
+
+    </script>
+</body>
+</html>
